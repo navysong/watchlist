@@ -1,5 +1,20 @@
+import os
+import sys
 from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
+
 app = Flask(__name__)
+
+WIN = sys.platform.startswith('win')
+if WIN:
+	prefix = 'sqlite:///'
+else:
+	prefix = 'sqlite:////'
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = prefix + os.path.join(app.root_path, 'data.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db =  SQLAlchemy(app)
 
 @app.route('/')
 @app.route('/index')
@@ -18,3 +33,15 @@ movies = [
 	{'title':'辛德勒的名单Schindler\'s List', 'year': '1993'},
 	{'title':'教父The Godfather', 'year': '1972'},
 	]
+	
+	
+class User(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(20))
+
+
+class Movie(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	title = db.Column(db.String(60))
+	year = db.Column(db.String(4))
+
