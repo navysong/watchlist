@@ -16,12 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = prefix + os.path.join(app.root_path, 'da
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db =  SQLAlchemy(app)
 
-@app.route('/')
-@app.route('/index')
-@app.route('/home')
-def index():	
-	return render_template('index.html', name=name, movies=movies)
-	
+
 name = 'navy Song'
 movies = [
 	{'title':'肖申克的救赎The Shawshank Redemption', 'year': '1994'},
@@ -33,8 +28,8 @@ movies = [
 	{'title':'辛德勒的名单Schindler\'s List', 'year': '1993'},
 	{'title':'教父The Godfather', 'year': '1972'},
 	]
-	
-	
+
+
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(20))
@@ -44,4 +39,21 @@ class Movie(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	title = db.Column(db.String(60))
 	year = db.Column(db.String(4))
+	
+@app.context_processor
+def inject_user():
+	user = User.query.first()
+	return dict(user=user)
+
+@app.errorhandler(404)
+def page_not_found(e):
+	return render_template('404.html'), 404
+
+@app.route('/')
+@app.route('/index')
+@app.route('/home')
+def index():	
+	movies = Movie.query.all()
+	return render_template('index.html', movies=movies)
+	
 
